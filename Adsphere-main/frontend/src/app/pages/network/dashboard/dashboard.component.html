@@ -1,0 +1,44 @@
+<div class="space-y-6 animate-in fade-in duration-500">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="page-title">Network Command Center</h1>
+      <p class="text-sm text-gray-500 mt-1">Overview of your network operations and pending approvals.</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="card p-6 bg-gradient-to-br from-indigo-500 to-purple-600 text-white relative overflow-hidden group">
+      <div class="absolute right-0 top-0 opacity-10 transform translate-x-4 -translate-y-4 transition-transform group-hover:scale-110">
+        <lucide-icon name="globe" [size]="120"></lucide-icon>
+      </div>
+      <div class="relative z-10">
+        <p class="text-indigo-100 font-medium mb-1">Pending Websites</p>
+        <div class="flex items-end gap-3">
+          <span class="text-4xl font-bold">{{ pendingWebsites.length }}</span>
+        </div>
+      </div>
+      <div class="mt-6">
+        <button routerLink="/network/websites" class="text-sm font-medium text-white/90 hover:text-white flex items-center gap-1">
+          Review Requests <lucide-icon name="arrow-right" [size]="16"></lucide-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="card p-6 bg-gradient-to-br from-emerald-500 to-teal-600 text-white relative overflow-hidden group">
+      <div class="absolute right-0 top-0 opacity-10 transform translate-x-4 -translate-y-4 transition-transform group-hover:scale-110">
+        <lucide-icon name="megaphone" [size]="120"></lucide-icon>
+      </div>
+      <div class="relative z-10">
+        <p class="text-emerald-100 font-medium mb-1">Pending Campaigns</p>
+        <div class="flex items-end gap-3">
+          <span class="text-4xl font-bold">{{ pendingCampaigns.length }}</span>
+        </div>
+      </div>
+      <div class="mt-6">
+        <button routerLink="/network/campaigns" class="text-sm font-medium text-white/90 hover:text-white flex items-center gap-1">
+          Review Requests <lucide-icon name="arrow-right" [size]="16"></lucide-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,61 @@
+<div class="max-w-2xl space-y-6">
+  <div class="flex items-center gap-3">
+    <button (click)="goBack()" class="p-1.5 rounded-lg hover:bg-gray-200 transition cursor-pointer text-gray-500">
+      <svg lucideIcon="arrow-left" [size]="18"></svg>
+    </button>
+    <div>
+      <h1 class="page-title">{{ isEdit ? 'Edit Website' : 'Register Website' }}</h1>
+      <p class="text-sm text-gray-500 mt-0.5">
+        {{ isEdit ? 'Update your website details' : 'Register your website to start displaying ads and earning revenue' }}
+      </p>
+    </div>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="card p-6 space-y-5">
+    <div>
+      <label class="label">Website Name *</label>
+      <input formControlName="name" placeholder="e.g. My Tech Blog" class="input" />
+      <div *ngIf="form.get('name')?.touched && form.get('name')?.invalid" class="text-red-500 text-xs mt-1.5">
+        <p *ngIf="form.get('name')?.errors?.['required']">Website Name is required.</p>
+      </div>
+    </div>
+
+    <div>
+      <label class="label">Website URL *</label>
+      <input formControlName="url" placeholder="https://mysite.com" class="input" />
+      <div *ngIf="form.get('url')?.touched && form.get('url')?.invalid" class="text-red-500 text-xs mt-1.5">
+        <p *ngIf="form.get('url')?.errors?.['required']">Website URL is required.</p>
+        <p *ngIf="form.get('url')?.errors?.['pattern']">Enter a valid URL (https://...).</p>
+      </div>
+    </div>
+
+    <div>
+      <label class="label">Category *</label>
+      <select formControlName="category" class="input">
+        <option value="">Select a category</option>
+        <option *ngFor="let c of CATEGORIES" [value]="c">{{ c }}</option>
+      </select>
+      <div *ngIf="form.get('category')?.touched && form.get('category')?.invalid" class="text-red-500 text-xs mt-1.5">
+        <p *ngIf="form.get('category')?.errors?.['required']">Category is required.</p>
+      </div>
+    </div>
+
+    <div *ngIf="!isEdit" class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm">
+      <p class="font-semibold text-amber-800 mb-1">After registration</p>
+      <p class="text-amber-700 text-xs">Your website will be submitted for review by a Network Admin. Once approved, you can start adding ad placements.</p>
+    </div>
+
+    <div *ngIf="errorMsg" class="bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+      <p class="text-red-600 text-sm">{{ errorMsg }}</p>
+    </div>
+
+    <div class="flex gap-3 pt-2 border-t border-gray-100">
+      <button type="submit" [disabled]="form.invalid || isSubmitting" class="btn-primary flex items-center gap-2">
+        <span *ngIf="isSubmitting" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+        <svg *ngIf="!isSubmitting" lucideIcon="save" [size]="14"></svg>
+        {{ isSubmitting ? 'Saving…' : isEdit ? 'Update Website' : 'Register Website' }}
+      </button>
+      <button type="button" (click)="goBack()" class="btn-secondary">Cancel</button>
+    </div>
+  </form>
+</div>

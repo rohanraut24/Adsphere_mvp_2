@@ -1,0 +1,28 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "AdSphereApplication",
+            "request": "launch",
+            "mainClass": "com.adsphere.AdSphereApplication",
+            "projectName": "adsphere"
+        },
+        {
+            "type": "java",
+            "name": "AdSphereApplication",
+            "request": "launch",
+            "mainClass": "AdSphereApplication",
+            "projectName": "adsphere"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-AdSphereApplication<adsphere>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/backend",
+            "mainClass": "com.adsphere.backend.AdSphereApplication",
+            "projectName": "adsphere",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

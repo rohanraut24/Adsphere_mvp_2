@@ -1,0 +1,62 @@
+<div class="space-y-5">
+  <div>
+    <h1 class="page-title">Campaign Approvals</h1>
+    <p class="text-sm text-gray-500 mt-0.5">{{ campaigns.length }} pending campaign{{ campaigns.length !== 1 ? 's' : '' }} awaiting review</p>
+  </div>
+
+  <div class="card overflow-hidden">
+    <div *ngIf="loading" class="animate-pulse p-6 space-y-3">
+      <div *ngFor="let i of [1, 2, 3]" class="h-12 bg-gray-100 rounded-xl"></div>
+    </div>
+    <div *ngIf="!loading && campaigns.length === 0" class="flex flex-col items-center py-20 text-center">
+      <svg lucideIcon="check-circle" [size]="40" class="text-emerald-200 mb-3"></svg>
+      <p class="text-gray-500 font-medium">All caught up!</p>
+      <p class="text-gray-400 text-sm mt-1">No pending campaigns to review</p>
+    </div>
+    <div *ngIf="!loading && campaigns.length > 0">
+      <table class="w-full">
+        <thead>
+          <tr class="bg-gray-50 border-b border-gray-100">
+            <th class="th text-left">Campaign</th>
+            <th class="th text-left">Advertiser</th>
+            <th class="th text-right">Budget</th>
+            <th class="th text-right">CPC Bid</th>
+            <th class="th text-left">Dates</th>
+            <th class="th text-left">Status</th>
+            <th class="th text-left">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-50">
+          <tr *ngFor="let c of campaigns" class="hover:bg-gray-50 transition-colors">
+            <td class="td">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center shrink-0">
+                  <svg lucideIcon="megaphone" [size]="14" class="text-orange-500"></svg>
+                </div>
+                <div>
+                  <p class="font-semibold text-gray-900">{{ c.name }}</p>
+                  <p *ngIf="c.description" class="text-xs text-gray-400 truncate max-w-[160px]">{{ c.description }}</p>
+                </div>
+              </div>
+            </td>
+            <td class="td text-sm text-gray-600">{{ c.advertiserEmail }}</td>
+            <td class="td text-right font-semibold">\${{ c.budget | number:'1.0-0' }}</td>
+            <td class="td text-right text-gray-600">\${{ c.cpcBid }}</td>
+            <td class="td text-xs text-gray-500">{{ c.startDate }}<br />{{ c.endDate }}</td>
+            <td class="td"><app-badge [status]="c.status"></app-badge></td>
+            <td class="td">
+              <div class="flex gap-1.5">
+                <button (click)="action(approveCampaignFn, c.id)" class="flex items-center gap-1 btn-success">
+                  <svg lucideIcon="check-circle" [size]="12"></svg> Approve
+                </button>
+                <button (click)="action(rejectCampaignFn, c.id)" class="flex items-center gap-1 btn-danger">
+                  <svg lucideIcon="x" [size]="12"></svg> Reject
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

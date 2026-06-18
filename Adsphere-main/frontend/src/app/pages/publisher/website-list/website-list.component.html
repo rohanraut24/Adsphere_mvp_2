@@ -1,0 +1,59 @@
+<div class="space-y-5">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="page-title">My Websites</h1>
+      <p class="text-sm text-gray-500 mt-0.5">{{ websites.length }} registered website{{ websites.length !== 1 ? 's' : '' }}</p>
+    </div>
+    <a routerLink="/publisher/websites/new" class="btn-primary flex items-center gap-2">
+      <svg lucideIcon="plus" [size]="15"></svg> Register Website
+    </a>
+  </div>
+
+  <div class="relative w-64">
+    <svg lucideIcon="search" [size]="14" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></svg>
+    <input [(ngModel)]="search" placeholder="Search websites…"
+      class="border border-gray-200 rounded-xl pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white w-full" />
+  </div>
+
+  <div class="card overflow-hidden">
+    <div *ngIf="visibleWebsites.length === 0" class="flex flex-col items-center py-20 text-center">
+      <svg lucideIcon="globe" [size]="40" class="text-gray-200 mb-3"></svg>
+      <p class="text-gray-500 font-medium">No websites found</p>
+      <p class="text-gray-400 text-sm mt-1 mb-4">Register your first website to start displaying ads</p>
+      <a routerLink="/publisher/websites/new" class="btn-primary text-xs px-3 py-1.5">Register Website</a>
+    </div>
+    <div *ngIf="visibleWebsites.length > 0">
+      <table class="w-full">
+        <thead>
+          <tr class="bg-gray-50 border-b border-gray-100">
+            <th class="th text-left">Website</th>
+            <th class="th text-left">Category</th>
+            <th class="th text-left">Status</th>
+            <th class="th text-left">Registered</th>
+            <th class="th text-left">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-50">
+          <tr *ngFor="let w of visibleWebsites" class="hover:bg-gray-50 transition-colors">
+            <td class="td">
+              <a [routerLink]="['/publisher/websites', w.id]" class="font-semibold text-gray-900 hover:text-indigo-600 transition-colors">{{ w.name }}</a>
+              <p class="text-xs text-gray-400 mt-0.5">{{ w.url }}</p>
+            </td>
+            <td class="td">
+              <span class="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-full">{{ w.category }}</span>
+            </td>
+            <td class="td"><app-badge [status]="w.status"></app-badge></td>
+            <td class="td text-xs text-gray-500">{{ w.createdAt | date:'shortDate' }}</td>
+            <td class="td">
+              <div class="flex gap-1.5">
+                <a [routerLink]="['/publisher/websites', w.id]" class="btn-secondary text-xs px-2.5 py-1">View</a>
+                <a [routerLink]="['/publisher/websites', w.id, 'edit']" class="btn-secondary text-xs px-2.5 py-1">Edit</a>
+                <button (click)="deleteWebsite(w.id)" class="btn-danger">Delete</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,62 @@
+<div class="space-y-5">
+  <div>
+    <h1 class="page-title">Website Approvals</h1>
+    <p class="text-sm text-gray-500 mt-0.5">{{ websites.length }} pending website{{ websites.length !== 1 ? 's' : '' }} awaiting review</p>
+  </div>
+
+  <div class="card overflow-hidden">
+    <div *ngIf="loading" class="animate-pulse p-6 space-y-3">
+      <div *ngFor="let i of [1, 2, 3]" class="h-12 bg-gray-100 rounded-xl"></div>
+    </div>
+    <div *ngIf="!loading && websites.length === 0" class="flex flex-col items-center py-20 text-center">
+      <svg lucideIcon="check-circle" [size]="40" class="text-emerald-200 mb-3"></svg>
+      <p class="text-gray-500 font-medium">All caught up!</p>
+      <p class="text-gray-400 text-sm mt-1">No pending websites to review</p>
+    </div>
+    <div *ngIf="!loading && websites.length > 0">
+      <table class="w-full">
+        <thead>
+          <tr class="bg-gray-50 border-b border-gray-100">
+            <th class="th text-left">Website</th>
+            <th class="th text-left">Publisher</th>
+            <th class="th text-left">Category</th>
+            <th class="th text-left">Status</th>
+            <th class="th text-left">Submitted</th>
+            <th class="th text-left">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-50">
+          <tr *ngFor="let w of websites" class="hover:bg-gray-50 transition-colors">
+            <td class="td">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center shrink-0">
+                  <svg lucideIcon="globe" [size]="14" class="text-indigo-500"></svg>
+                </div>
+                <div>
+                  <p class="font-semibold text-gray-900">{{ w.name }}</p>
+                  <a [href]="w.url" target="_blank" class="text-xs text-indigo-500 hover:underline">{{ w.url }}</a>
+                </div>
+              </div>
+            </td>
+            <td class="td text-sm text-gray-600">{{ w.publisherEmail }}</td>
+            <td class="td">
+              <span class="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-full">{{ w.category }}</span>
+            </td>
+            <td class="td"><app-badge [status]="w.status"></app-badge></td>
+            <td class="td text-xs text-gray-500">{{ w.createdAt | date:'shortDate' }}</td>
+            <td class="td">
+              <div class="flex gap-1.5">
+                <button (click)="action(approveWebsiteFn, w.id)" class="flex items-center gap-1 btn-success">
+                  <svg lucideIcon="check-circle" [size]="12"></svg> Approve
+                </button>
+                <button (click)="action(rejectWebsiteFn, w.id)" class="flex items-center gap-1 btn-danger">
+                  <svg lucideIcon="x" [size]="12"></svg> Reject
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

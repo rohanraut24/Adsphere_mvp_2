@@ -1,0 +1,75 @@
+<div class="max-w-2xl space-y-6">
+  <div class="flex items-center gap-3">
+    <button (click)="goBack()" class="p-1.5 rounded-lg hover:bg-gray-200 transition cursor-pointer text-gray-500">
+      <svg lucideIcon="arrow-left" [size]="18"></svg>
+    </button>
+    <div>
+      <h1 class="page-title">{{ isEdit ? 'Edit Campaign' : 'New Campaign' }}</h1>
+      <p class="text-sm text-gray-500 mt-0.5">{{ isEdit ? 'Update your campaign details' : 'Fill in the details to create a new campaign' }}</p>
+    </div>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="card p-6 space-y-5">
+    <div>
+      <label class="label">Campaign Name *</label>
+      <input formControlName="name" placeholder="e.g. Summer Sale 2024" class="input" />
+      <div *ngIf="form.get('name')?.touched && form.get('name')?.invalid" class="text-red-500 text-xs mt-1.5">
+        <p *ngIf="form.get('name')?.errors?.['required']">Campaign Name is required.</p>
+      </div>
+    </div>
+
+    <div>
+      <label class="label">Description</label>
+      <textarea formControlName="description" rows="3" placeholder="Brief description of this campaign…" class="input resize-none"></textarea>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label class="label">Budget ($) *</label>
+        <input formControlName="budget" type="number" step="0.01" placeholder="100.00" class="input" />
+        <div *ngIf="form.get('budget')?.touched && form.get('budget')?.invalid" class="text-red-500 text-xs mt-1.5">
+          <p *ngIf="form.get('budget')?.errors?.['required']">Budget is required.</p>
+          <p *ngIf="form.get('budget')?.errors?.['min']">Must be positive.</p>
+        </div>
+      </div>
+      <div>
+        <label class="label">CPC Bid ($) *</label>
+        <input formControlName="cpcBid" type="number" step="0.001" placeholder="0.10" class="input" />
+        <div *ngIf="form.get('cpcBid')?.touched && form.get('cpcBid')?.invalid" class="text-red-500 text-xs mt-1.5">
+          <p *ngIf="form.get('cpcBid')?.errors?.['required']">CPC Bid is required.</p>
+          <p *ngIf="form.get('cpcBid')?.errors?.['min']">Must be positive.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label class="label">Start Date *</label>
+        <input formControlName="startDate" type="date" class="input" />
+        <div *ngIf="form.get('startDate')?.touched && form.get('startDate')?.invalid" class="text-red-500 text-xs mt-1.5">
+          <p *ngIf="form.get('startDate')?.errors?.['required']">Start Date is required.</p>
+        </div>
+      </div>
+      <div>
+        <label class="label">End Date *</label>
+        <input formControlName="endDate" type="date" class="input" />
+        <div *ngIf="form.get('endDate')?.touched && form.get('endDate')?.invalid" class="text-red-500 text-xs mt-1.5">
+          <p *ngIf="form.get('endDate')?.errors?.['required']">End Date is required.</p>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="errorMsg" class="bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+      <p class="text-red-600 text-sm">{{ errorMsg }}</p>
+    </div>
+
+    <div class="flex gap-3 pt-2 border-t border-gray-100">
+      <button type="submit" [disabled]="form.invalid || isSubmitting" class="btn-primary flex items-center gap-2">
+        <span *ngIf="isSubmitting" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+        <svg *ngIf="!isSubmitting" lucideIcon="save" [size]="14"></svg>
+        {{ isSubmitting ? 'Saving…' : isEdit ? 'Update Campaign' : 'Create Campaign' }}
+      </button>
+      <button type="button" (click)="goBack()" class="btn-secondary">Cancel</button>
+    </div>
+  </form>
+</div>

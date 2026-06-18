@@ -1,0 +1,146 @@
+<div *ngIf="!stats" class="animate-pulse space-y-4">
+  <div class="h-8 bg-gray-200 rounded w-48"></div>
+  <div class="grid grid-cols-4 gap-4">
+    <div *ngFor="let i of [1, 2, 3, 4, 5, 6, 7, 8]" class="h-24 bg-gray-200 rounded-2xl"></div>
+  </div>
+</div>
+
+<div *ngIf="stats" class="space-y-6">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <h1 class="page-title">Platform Dashboard</h1>
+      <p class="text-sm text-gray-500 mt-0.5">Real-time overview of the AdSphere platform</p>
+    </div>
+    <div class="flex gap-3">
+      <button routerLink="/admin/users" class="btn-secondary flex items-center gap-2">
+        <svg lucideIcon="users" [size]="16"></svg> Manage Users
+      </button>
+      <button routerLink="/admin/upgrades" class="btn-primary flex items-center gap-2">
+        <svg lucideIcon="arrow-up-circle" [size]="16"></svg> Review Upgrades
+      </button>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+    <app-stat-card label="Total Users" [value]="stats.totalUsers" icon="users" color="indigo"></app-stat-card>
+    <app-stat-card label="Total Websites" [value]="stats.totalWebsites" icon="globe" color="cyan"></app-stat-card>
+    <app-stat-card label="Total Campaigns" [value]="stats.totalCampaigns" icon="megaphone" color="amber"></app-stat-card>
+    <app-stat-card label="Total Placements" [value]="stats.totalPlacements" icon="layout-grid" color="violet"></app-stat-card>
+  </div>
+
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+    <app-stat-card label="Total Impressions" [value]="stats.totalImpressions | number" icon="eye" color="indigo"></app-stat-card>
+    <app-stat-card label="Total Clicks" [value]="stats.totalClicks | number" icon="mouse-pointer-click" color="emerald"></app-stat-card>
+    <app-stat-card label="Platform Revenue" [value]="'$' + (stats.totalPlatformRevenue | number:'1.4-4')" icon="dollar-sign" color="rose"></app-stat-card>
+    <app-stat-card label="Network Revenue" [value]="'$' + (stats.totalNetworkRevenue | number:'1.4-4')" icon="trending-up" color="violet"></app-stat-card>
+  </div>
+
+  <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+    <!-- Existing Revenue Distribution -->
+    <div class="card p-6">
+      <h2 class="section-title mb-4">Revenue Distribution</h2>
+      <div class="space-y-6">
+        <div *ngFor="let item of revenueData" class="space-y-1">
+          <div class="flex justify-between text-xs font-semibold text-gray-500 uppercase tracking-wide">
+            <span>{{ item.name }}</span>
+            <span class="text-gray-900">\${{ item.value | number:'1.4-4' }}</span>
+          </div>
+          <div class="h-6 bg-gray-50 rounded-lg overflow-hidden border border-gray-100 relative flex items-center px-1">
+            <div class="h-full bg-indigo-600 rounded transition-all" [style.width.%]="item.percentage"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Existing Platform Summary -->
+    <div class="card p-6">
+      <h2 class="section-title mb-4">Platform Summary</h2>
+      <div class="space-y-4">
+        <div>
+          <div class="flex justify-between text-sm mb-1">
+            <span class="text-gray-600">Click-through Rate</span>
+            <span class="font-semibold text-gray-900">{{ ctrPercentage }}</span>
+          </div>
+          <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+            <div class="h-full bg-indigo-500 rounded-full transition-all" [style.width.%]="ctrBarVal"></div>
+          </div>
+        </div>
+        <div>
+          <div class="flex justify-between text-sm mb-1">
+            <span class="text-gray-600">Campaigns per User</span>
+            <span class="font-semibold text-gray-900">{{ campaignsPerUser }}</span>
+          </div>
+          <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+            <div class="h-full bg-emerald-500 rounded-full transition-all" [style.width.%]="campaignsPerUserBarVal"></div>
+          </div>
+        </div>
+        <div>
+          <div class="flex justify-between text-sm mb-1">
+            <span class="text-gray-600">Placements per Website</span>
+            <span class="font-semibold text-gray-900">{{ placementsPerWebsite }}</span>
+          </div>
+          <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+            <div class="h-full bg-amber-500 rounded-full transition-all" [style.width.%]="placementsPerWebsiteBarVal"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- System Health & Anomaly Detection Widget -->
+  <div class="card p-6 mt-6 border-l-4" [ngClass]="stats.anomalies?.length ? 'border-l-rose-500' : 'border-l-emerald-500'">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h2 class="section-title flex items-center gap-2">
+          <svg lucideIcon="shield-alert" [size]="20" [ngClass]="stats.anomalies?.length ? 'text-rose-500' : 'text-emerald-500'"></svg>
+          System Health & Anomalies
+        </h2>
+        <p class="text-sm text-gray-500">Real-time automated fraud and issue detection</p>
+      </div>
+      <span *ngIf="!stats.anomalies?.length" class="px-3 py-1 bg-emerald-50 text-emerald-700 text-sm font-medium rounded-full flex items-center gap-1">
+        <svg lucideIcon="check-circle" [size]="14"></svg> All Systems Nominal
+      </span>
+      <span *ngIf="stats.anomalies?.length" class="px-3 py-1 bg-rose-50 text-rose-700 text-sm font-medium rounded-full flex items-center gap-1">
+        <svg lucideIcon="shield-alert" [size]="14"></svg> {{ stats.anomalies.length }} Alerts Detected
+      </span>
+    </div>
+
+    <div *ngIf="stats.anomalies?.length > 0" class="space-y-3">
+      <div *ngFor="let anomaly of stats.anomalies" class="flex items-start gap-4 p-4 rounded-xl border"
+           [ngClass]="{
+             'bg-rose-50 border-rose-100': anomaly.severity === 'HIGH',
+             'bg-amber-50 border-amber-100': anomaly.severity === 'MEDIUM',
+             'bg-blue-50 border-blue-100': anomaly.severity === 'LOW'
+           }">
+        <div class="mt-0.5">
+          <svg *ngIf="anomaly.severity === 'HIGH'" lucideIcon="shield-alert" [size]="20" class="text-rose-600"></svg>
+          <svg *ngIf="anomaly.severity === 'MEDIUM'" lucideIcon="shield-alert" [size]="20" class="text-amber-600"></svg>
+          <svg *ngIf="anomaly.severity === 'LOW'" lucideIcon="shield-alert" [size]="20" class="text-blue-600"></svg>
+        </div>
+        <div class="flex-1">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-xs font-bold px-2 py-0.5 rounded uppercase tracking-wide"
+                  [ngClass]="{
+                    'bg-rose-200 text-rose-800': anomaly.severity === 'HIGH',
+                    'bg-amber-200 text-amber-800': anomaly.severity === 'MEDIUM',
+                    'bg-blue-200 text-blue-800': anomaly.severity === 'LOW'
+                  }">
+              {{ anomaly.severity }} SEVERITY
+            </span>
+            <span class="text-sm font-semibold text-gray-900">{{ anomaly.type.replace('_', ' ') }}</span>
+          </div>
+          <p class="text-sm text-gray-700">{{ anomaly.description }}</p>
+          <p class="text-xs text-gray-500 mt-1 font-medium">Offending Entity: {{ anomaly.entityType }} #{{ anomaly.entityId }}</p>
+        </div>
+        <div>
+          <button routerLink="/admin/users" *ngIf="anomaly.entityType === 'PUBLISHER'" class="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1">
+            <svg lucideIcon="user-x" [size]="14"></svg> Suspend
+          </button>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="!stats.anomalies?.length" class="text-center py-8 text-gray-500">
+      <p>No suspicious activity or exhausted budgets detected across the platform.</p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,82 @@
+<div class="space-y-5">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="page-title">Campaigns</h1>
+      <p class="text-sm text-gray-500 mt-0.5">{{ campaigns.length }} total campaign{{ campaigns.length !== 1 ? 's' : '' }}</p>
+    </div>
+    <a routerLink="/advertiser/campaigns/new" class="btn-primary flex items-center gap-2">
+      <svg lucideIcon="plus" [size]="15"></svg> New Campaign
+    </a>
+  </div>
+
+  <!-- Filters -->
+  <div class="flex flex-wrap gap-2 items-center">
+    <div class="relative">
+      <svg lucideIcon="search" [size]="14" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></svg>
+      <input
+        [(ngModel)]="search"
+        placeholder="Search campaigns…"
+        class="border border-gray-200 rounded-xl pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white w-52"
+      />
+    </div>
+    <div class="flex gap-1 flex-wrap">
+      <button *ngFor="let s of STATUSES" (click)="filter = s"
+        class="px-3 py-1.5 rounded-full text-xs font-semibold transition cursor-pointer"
+        [ngClass]="filter === s ? 'bg-indigo-600 text-white' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'">
+        {{ s.replace('_', ' ') }}
+      </button>
+    </div>
+  </div>
+
+  <div class="card overflow-hidden">
+    <div *ngIf="visibleCampaigns.length === 0" class="flex flex-col items-center justify-center py-20 text-center">
+      <svg lucideIcon="megaphone" [size]="40" class="text-gray-200 mb-3"></svg>
+      <p class="text-gray-500 font-medium">No campaigns found</p>
+      <p class="text-gray-400 text-sm mt-1">Try adjusting your filters or create a new campaign</p>
+    </div>
+    <div *ngIf="visibleCampaigns.length > 0">
+      <table class="w-full">
+        <thead>
+          <tr class="bg-gray-50 border-b border-gray-100">
+            <th class="th text-left">Campaign</th>
+            <th class="th text-left">Status</th>
+            <th class="th text-right">Budget</th>
+            <th class="th text-right">CPC Bid</th>
+            <th class="th text-left">Dates</th>
+            <th class="th text-left">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-50">
+          <tr *ngFor="let c of visibleCampaigns" class="hover:bg-gray-50 transition-colors group">
+            <td class="td">
+              <a [routerLink]="['/advertiser/campaigns', c.id]" class="font-semibold text-gray-900 hover:text-indigo-600 transition-colors">
+                {{ c.name }}
+              </a>
+              <p *ngIf="c.description" class="text-xs text-gray-400 mt-0.5 truncate max-w-xs">{{ c.description }}</p>
+            </td>
+            <td class="td"><app-badge [status]="c.status"></app-badge></td>
+            <td class="td text-right font-semibold text-gray-900">\${{ c.budget | number:'1.0-0' }}</td>
+            <td class="td text-right text-gray-600">\${{ c.cpcBid }}</td>
+            <td class="td text-xs text-gray-500">{{ c.startDate }}<br />{{ c.endDate }}</td>
+            <td class="td">
+              <div class="flex gap-1.5 flex-wrap">
+                <ng-container *ngIf="c.status === 'DRAFT'">
+                  <a [routerLink]="['/advertiser/campaigns', c.id, 'edit']" class="btn-secondary text-xs px-2.5 py-1">Edit</a>
+                  <button (click)="action(submitCampaignFn, c.id)" class="btn-success">Submit</button>
+                  <button (click)="action(deleteCampaignFn, c.id)" class="btn-danger">Delete</button>
+                </ng-container>
+                <ng-container *ngIf="c.status === 'ACTIVE'">
+                  <button (click)="action(pauseCampaignFn, c.id)" class="btn-warn">Pause</button>
+                </ng-container>
+                <ng-container *ngIf="c.status === 'PAUSED'">
+                  <button (click)="action(resumeCampaignFn, c.id)" class="btn-success">Resume</button>
+                </ng-container>
+                <a [routerLink]="['/advertiser/campaigns', c.id]" class="btn-secondary text-xs px-2.5 py-1">View</a>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

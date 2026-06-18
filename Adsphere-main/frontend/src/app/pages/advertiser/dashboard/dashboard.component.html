@@ -1,0 +1,111 @@
+<div class="space-y-6">
+  <div *ngIf="loading" class="space-y-6 animate-pulse">
+    <div class="h-8 bg-gray-200 rounded w-48"></div>
+    <div class="grid grid-cols-4 gap-4">
+      <div *ngFor="let i of [1, 2, 3, 4]" class="h-24 bg-gray-200 rounded-2xl"></div>
+    </div>
+    <div class="h-64 bg-gray-200 rounded-2xl"></div>
+  </div>
+
+  <div *ngIf="!loading" class="space-y-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="page-title">Dashboard</h1>
+        <p class="text-sm text-gray-500 mt-0.5">Overview of your advertising activity</p>
+      </div>
+      <div class="flex gap-2">
+        <button (click)="showUpgradeModal = true"
+          [disabled]="hasPendingUpgrade"
+          class="btn-secondary flex items-center gap-2 text-violet-700 border-violet-200 hover:bg-violet-50 disabled:opacity-50">
+          <svg lucideIcon="shield-check" [size]="15"></svg>
+          {{ hasPendingUpgrade ? 'Upgrade Pending…' : 'Become a Publisher' }}
+        </button>
+        <a routerLink="/advertiser/campaigns/new" class="btn-primary flex items-center gap-2">
+          <svg lucideIcon="plus" [size]="15"></svg> New Campaign
+        </a>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+      <app-stat-card label="Total Spend" [value]="spend !== null ? '$' + (spend | number:'1.2-2') : '—'" icon="dollar-sign" color="indigo"></app-stat-card>
+      <app-stat-card label="Active Campaigns" [value]="active" icon="trending-up" color="emerald"></app-stat-card>
+      <app-stat-card label="Pending Approval" [value]="pending" icon="clock" color="amber"></app-stat-card>
+      <app-stat-card label="Draft Campaigns" [value]="draft" icon="megaphone" color="violet"></app-stat-card>
+    </div>
+
+    <!-- Spend Chart -->
+    <div class="card p-6">
+      <h2 class="section-title mb-4">Spend Overview</h2>
+      <div class="h-72 w-full">
+        <canvas baseChart
+          [data]="lineChartData"
+          [options]="lineChartOptions"
+          [type]="'line'">
+        </canvas>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+      <!-- Campaigns table -->
+      <div class="xl:col-span-2 card overflow-hidden">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+          <h2 class="section-title">Recent Campaigns</h2>
+          <a routerLink="/advertiser/campaigns" class="text-xs text-indigo-600 font-medium flex items-center gap-1 hover:underline">
+            View all <svg lucideIcon="arrow-right" [size]="12"></svg>
+          </a>
+        </div>
+        <div *ngIf="campaigns.length === 0" class="flex flex-col items-center justify-center py-16 text-center">
+          <svg lucideIcon="megaphone" [size]="36" class="text-gray-200 mb-3"></svg>
+          <p class="text-gray-500 text-sm font-medium">No campaigns yet</p>
+          <p class="text-gray-400 text-xs mt-1 mb-4">Create your first campaign to get started</p>
+          <a routerLink="/advertiser/campaigns/new" class="btn-primary text-xs px-3 py-1.5">Create Campaign</a>
+        </div>
+        <div *ngIf="campaigns.length > 0">
+          <table class="w-full">
+            <thead>
+              <tr class="bg-gray-50 border-b border-gray-100">
+                <th class="th text-left">Campaign</th>
+                <th class="th text-left">Status</th>
+                <th class="th text-right">Budget</th>
+                <th class="th text-right">CPC</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-50">
+              <tr *ngFor="let c of campaigns | slice:0:6" class="hover:bg-gray-50 transition-colors">
+                <td class="td">
+                  <a [routerLink]="['/advertiser/campaigns', c.id]" class="font-medium text-gray-900 hover:text-indigo-600 transition-colors">{{ c.name }}</a>
+                  <p class="text-xs text-gray-400 mt-0.5">{{ c.startDate }} → {{ c.endDate }}</p>
+                </td>
+                <td class="td"><app-badge [status]="c.status"></app-badge></td>
+                <td class="td text-right font-medium">\${{ c.budget }}</td>
+                <td class="td text-right text-gray-500">\${{ c.cpcBid }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Recent transactions -->
+      <div class="card overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100">
+          <h2 class="section-title">Recent Transactions</h2>
+        </div>
+        <div *ngIf="transactions.length === 0" class="flex flex-col items-center justify-center py-12 text-center">
+          <svg lucideIcon="dollar-sign" [size]="32" class="text-gray-200 mb-2"></svg>
+          <p class="text-gray-400 text-sm">No transactions yet</p>
+        </div>
+        <div *ngIf="transactions.length > 0" class="divide-y divide-gray-50">
+          <div *ngFor="let t of transactions | slice:0:8" class="px-5 py-3 flex items-center justify-between">
+            <div>
+              <p class="text-xs font-medium text-gray-700">Placement #{{ t.placementId }}</p>
+              <p class="text-xs text-gray-400">{{ t.createdAt | date:'shortDate' }}</p>
+            </div>
+            <span class="text-sm font-semibold text-red-500">-\${{ t.totalAmount | number:'1.4-4' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <app-upgrade-modal *ngIf="showUpgradeModal" currentRole="ADVERTISER" (close)="showUpgradeModal = false; loadUpgradeRequests()"></app-upgrade-modal>
+</div>

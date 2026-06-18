@@ -1,0 +1,110 @@
+<div class="space-y-6">
+  <div *ngIf="loading" class="animate-pulse space-y-4">
+    <div class="h-8 bg-gray-200 rounded w-48"></div>
+    <div class="grid grid-cols-4 gap-4">
+      <div *ngFor="let i of [1, 2, 3, 4]" class="h-24 bg-gray-200 rounded-2xl"></div>
+    </div>
+    <div class="h-64 bg-gray-200 rounded-2xl"></div>
+  </div>
+
+  <div *ngIf="!loading" class="space-y-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="page-title">Dashboard</h1>
+        <p class="text-sm text-gray-500 mt-0.5">Your publishing revenue overview</p>
+      </div>
+      <div class="flex gap-2">
+        <button (click)="showUpgradeModal = true"
+          [disabled]="hasPendingUpgrade"
+          class="btn-secondary flex items-center gap-2 text-violet-700 border-violet-200 hover:bg-violet-50 disabled:opacity-50">
+          <svg lucideIcon="shield-check" [size]="15"></svg>
+          {{ hasPendingUpgrade ? 'Upgrade Pending…' : 'Become Network Admin' }}
+        </button>
+        <a routerLink="/publisher/websites/new" class="btn-primary flex items-center gap-2">
+          <svg lucideIcon="plus" [size]="15"></svg> Register Website
+        </a>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+      <app-stat-card label="Total Earnings" [value]="earnings !== null ? '$' + (earnings | number:'1.4-4') : '—'" icon="dollar-sign" color="emerald"></app-stat-card>
+      <app-stat-card label="Total Websites" [value]="websites.length" icon="globe" color="indigo"></app-stat-card>
+      <app-stat-card label="Approved" [value]="approved" icon="trending-up" color="cyan"></app-stat-card>
+      <app-stat-card label="Pending Review" [value]="pending" icon="layout-grid" color="amber"></app-stat-card>
+    </div>
+
+    <!-- Earnings Chart -->
+    <div class="card p-6">
+      <h2 class="section-title mb-4">Earnings Overview</h2>
+      <div class="h-72 w-full">
+        <canvas baseChart
+          [data]="lineChartData"
+          [options]="lineChartOptions"
+          [type]="'line'">
+        </canvas>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+      <div class="xl:col-span-2 card overflow-hidden">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+          <h2 class="section-title">My Websites</h2>
+          <a routerLink="/publisher/websites" class="text-xs text-indigo-600 font-medium flex items-center gap-1 hover:underline">
+            View all <svg lucideIcon="arrow-right" [size]="12"></svg>
+          </a>
+        </div>
+        <div *ngIf="websites.length === 0" class="flex flex-col items-center py-16 text-center">
+          <svg lucideIcon="globe" [size]="36" class="text-gray-200 mb-3"></svg>
+          <p class="text-gray-500 font-medium">No websites registered</p>
+          <p class="text-gray-400 text-xs mt-1 mb-4">Register your first website to start earning</p>
+          <a routerLink="/publisher/websites/new" class="btn-primary text-xs px-3 py-1.5">Register Website</a>
+        </div>
+        <div *ngIf="websites.length > 0">
+          <table class="w-full">
+            <thead>
+              <tr class="bg-gray-50 border-b border-gray-100">
+                <th class="th text-left">Website</th>
+                <th class="th text-left">Category</th>
+                <th class="th text-left">Status</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-50">
+              <tr *ngFor="let w of websites | slice:0:6" class="hover:bg-gray-50 transition-colors">
+                <td class="td">
+                  <a [routerLink]="['/publisher/websites', w.id]" class="font-semibold text-gray-900 hover:text-indigo-600 transition-colors">{{ w.name }}</a>
+                  <p class="text-xs text-gray-400">{{ w.url }}</p>
+                </td>
+                <td class="td text-gray-500">{{ w.category }}</td>
+                <td class="td"><app-badge [status]="w.status"></app-badge></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100">
+          <h2 class="section-title">Recent Earnings</h2>
+        </div>
+        <div *ngIf="transactions.length === 0" class="flex flex-col items-center py-12 text-center">
+          <svg lucideIcon="dollar-sign" [size]="32" class="text-gray-200 mb-2"></svg>
+          <p class="text-gray-400 text-sm">No transactions yet</p>
+        </div>
+        <div *ngIf="transactions.length > 0" class="divide-y divide-gray-50">
+          <div *ngFor="let t of transactions | slice:0:8" class="px-5 py-3 flex items-center justify-between">
+            <div>
+              <p class="text-xs font-medium text-gray-700">Placement #{{ t.placementId }}</p>
+              <p class="text-xs text-gray-400">{{ t.createdAt | date:'shortDate' }}</p>
+            </div>
+            <div class="text-right">
+              <p class="text-sm font-semibold text-emerald-600">+\${{ t.publisherShare | number:'1.4-4' }}</p>
+              <p class="text-xs text-gray-400">of \${{ t.totalAmount | number:'1.4-4' }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <app-upgrade-modal *ngIf="showUpgradeModal" currentRole="PUBLISHER" (close)="showUpgradeModal = false; loadUpgradeRequests()"></app-upgrade-modal>
+</div>
