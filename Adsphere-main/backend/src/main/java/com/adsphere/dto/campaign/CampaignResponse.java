@@ -18,4 +18,5 @@ public class CampaignResponse {
     private CampaignStatus status;
     private String advertiserEmail;
     private LocalDateTime createdAt;
+    private java.util.List<AdCreativeResponse> creatives;
 }

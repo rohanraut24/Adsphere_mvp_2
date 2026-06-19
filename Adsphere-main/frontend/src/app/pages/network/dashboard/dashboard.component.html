@@ -6,7 +6,7 @@
     </div>
   </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
     <div class="card p-6 bg-gradient-to-br from-indigo-500 to-purple-600 text-white relative overflow-hidden group">
       <div class="absolute right-0 top-0 opacity-10 transform translate-x-4 -translate-y-4 transition-transform group-hover:scale-110">
         <lucide-icon name="globe" [size]="120"></lucide-icon>
@@ -38,6 +38,40 @@
         <button routerLink="/network/campaigns" class="text-sm font-medium text-white/90 hover:text-white flex items-center gap-1">
           Review Requests <lucide-icon name="arrow-right" [size]="16"></lucide-icon>
         </button>
+      </div>
+    </div>
+
+    <div class="card p-6 bg-gradient-to-br from-blue-500 to-cyan-600 text-white relative overflow-hidden group">
+      <div class="absolute right-0 top-0 opacity-10 transform translate-x-4 -translate-y-4 transition-transform group-hover:scale-110">
+        <lucide-icon name="dollar-sign" [size]="120"></lucide-icon>
+      </div>
+      <div class="relative z-10">
+        <p class="text-blue-100 font-medium mb-1">Total Network Revenue</p>
+        <div class="flex items-end gap-3">
+          <span class="text-4xl font-bold" *ngIf="stats">${{ stats.networkRevenue | number:'1.2-2' }}</span>
+          <span class="text-4xl font-bold" *ngIf="!stats">$0.00</span>
+        </div>
+      </div>
+      <div class="mt-6">
+        <span class="text-sm font-medium text-white/90 flex items-center gap-1">
+          Lifetime Platform Earnings
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 gap-6 mt-6">
+    <div class="card p-6">
+      <h2 class="section-title mb-4">Revenue Split</h2>
+      <div class="h-72 w-full flex items-center justify-center">
+        <canvas *ngIf="stats?.networkRevenue || stats?.platformRevenue" baseChart
+          [data]="pieChartData"
+          [options]="pieChartOptions"
+          [type]="'pie'">
+        </canvas>
+        <div *ngIf="!stats?.networkRevenue && !stats?.platformRevenue" class="text-sm text-gray-400">
+          No revenue data yet.
+        </div>
       </div>
     </div>
   </div>

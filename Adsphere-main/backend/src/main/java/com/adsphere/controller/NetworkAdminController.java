@@ -17,6 +17,12 @@ public class NetworkAdminController {
 
     private final WebsiteService websiteService;
     private final CampaignService campaignService;
+    private final com.adsphere.service.AdminService adminService;
+
+    @GetMapping("/stats")
+    public ResponseEntity<com.adsphere.dto.admin.AdminStats> getStats() {
+        return ResponseEntity.ok(adminService.getStats());
+    }
 
     @GetMapping("/websites/pending")
     public ResponseEntity<List<WebsiteResponse>> getPendingWebsites() {

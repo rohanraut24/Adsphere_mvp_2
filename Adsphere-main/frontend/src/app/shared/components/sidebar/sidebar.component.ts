@@ -21,7 +21,7 @@ interface NavItem {
     LucideDynamicIcon
   ],
   template: `
-    <aside class="w-64 min-h-screen bg-gray-950 text-white flex flex-col shrink-0">
+    <aside class="w-64 h-full bg-gray-950 text-white flex flex-col shrink-0">
       <!-- Logo -->
       <div class="px-6 py-5 flex items-center gap-2.5 border-b border-gray-800">
         <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center">

@@ -23,6 +23,7 @@ export class WebsiteDetailComponent implements OnInit {
   placements: any[] = [];
   analytics: any = null;
   daily: any[] = [];
+  activeCampaigns: any[] = [];
 
   today = new Date().toISOString().slice(0, 10);
   monthAgo = new Date(Date.now() - 30 * 864e5).toISOString().slice(0, 10);
@@ -65,6 +66,13 @@ export class WebsiteDetailComponent implements OnInit {
     this.api.publisher.getDailyAnalytics(id, this.monthAgo, this.today).subscribe({
       next: (res) => {
         this.daily = res;
+      },
+      error: () => {}
+    });
+
+    this.api.publisher.getActiveCampaigns().subscribe({
+      next: (res) => {
+        this.activeCampaigns = res;
       },
       error: () => {}
     });
@@ -127,9 +135,30 @@ export class WebsiteDetailComponent implements OnInit {
     }).join(' ');
   }
 
+  getRevenueLinePath(data: any[], width: number, height: number): string {
+    if (!data || data.length === 0) return '';
+    // Scale revenue separately since it's a monetary value, usually much smaller than impressions
+    const maxVal = Math.max(...data.map(d => d.revenue || 0), 0.01);
+    const stepX = width / (data.length - 1 || 1);
+    const padding = 10;
+    const chartHeight = height - padding * 2;
+    
+    return data.map((d, i) => {
+      const x = i * stepX;
+      const y = height - padding - ((d.revenue || 0) / maxVal) * chartHeight;
+      return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
+    }).join(' ');
+  }
+
   getMidpointDate(): string {
     if (this.daily.length < 2) return '';
     const midIndex = Math.floor(this.daily.length / 2);
     return this.daily[midIndex]?.date || '';
+  }
+
+  getAvailableCreatives(): any[] {
+    if (!this.placement.campaignId) return [];
+    const campaign = this.activeCampaigns.find(c => c.id === Number(this.placement.campaignId));
+    return campaign?.creatives || [];
   }
 }

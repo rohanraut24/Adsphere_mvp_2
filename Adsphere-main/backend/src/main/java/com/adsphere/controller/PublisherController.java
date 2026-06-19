@@ -31,6 +31,14 @@ public class PublisherController {
     private final RevenueService revenueService;
     private final UserRepository userRepository;
     private final AnalyticsService analyticsService;
+    private final com.adsphere.service.CampaignService campaignService;
+
+    // --- Campaign endpoints ---
+
+    @GetMapping("/campaigns/active")
+    public ResponseEntity<List<com.adsphere.dto.campaign.CampaignResponse>> getActiveCampaigns() {
+        return ResponseEntity.ok(campaignService.getActiveCampaignsWithCreatives());
+    }
 
     // --- Website endpoints ---
 

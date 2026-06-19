@@ -90,6 +90,17 @@ public class CampaignService {
         return setStatus(id, CampaignStatus.REJECTED);
     }
 
+    public List<CampaignResponse> getActiveCampaignsWithCreatives() {
+        return campaignRepository.findByStatus(CampaignStatus.ACTIVE).stream()
+                .map(campaign -> {
+                    CampaignResponse response = toResponse(campaign);
+                    List<AdCreativeResponse> creatives = adCreativeRepository.findByCampaign(campaign)
+                            .stream().map(this::toCreativeResponse).toList();
+                    response.setCreatives(creatives);
+                    return response;
+                }).toList();
+    }
+
     // --- AdCreative management ---
 
     public AdCreativeResponse addCreative(Long campaignId, String advertiserEmail, AdCreativeRequest request) {

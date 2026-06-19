@@ -60,6 +60,18 @@ export class DashboardComponent implements OnInit {
     }
   };
 
+  public pieChartData: ChartConfiguration<'pie'>['data'] = {
+    labels: [],
+    datasets: [{ data: [] }]
+  };
+  public pieChartOptions: ChartOptions<'pie'> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'bottom' }
+    }
+  };
+
   get approved(): number {
     return this.websites.filter(w => w.status === 'APPROVED').length;
   }
@@ -80,38 +92,75 @@ export class DashboardComponent implements OnInit {
   loadData() {
     this.loading = true;
     
-    const today = new Date();
-    const lastWeek = new Date();
-    lastWeek.setDate(today.getDate() - 6);
-    
-    const fromStr = lastWeek.toISOString().split('T')[0];
-    const toStr = today.toISOString().split('T')[0];
-
-    forkJoin({
-      earnings: this.api.publisher.getEarnings(),
-      websites: this.api.publisher.getWebsites(),
-      transactions: this.api.publisher.getTransactions(),
-      analytics: this.api.publisher.getGlobalDailyAnalytics(fromStr, toStr)
-    }).subscribe({
-      next: (res) => {
-        this.earnings = res.earnings;
-        this.websites = res.websites;
-        this.transactions = res.transactions;
+    this.api.publisher.getTransactions().subscribe({
+      next: (transactions) => {
+        this.transactions = transactions;
         
-        // Update chart data
-        if (res.analytics && res.analytics.length > 0) {
-          this.lineChartData = {
-            labels: res.analytics.map((a: any) => new Date(a.date).toLocaleDateString('en-US', { weekday: 'short' })),
-            datasets: [
-              {
-                data: res.analytics.map((a: any) => a.revenue),
-                label: 'Earnings ($)',
-                fill: true,
-                tension: 0.4,
-                borderColor: '#10b981',
-                backgroundColor: 'rgba(16, 185, 129, 0.1)'
-              }
-            ]
+        let fromStr = '2024-01-01'; // Default fallback
+        const today = new Date();
+        const toStr = today.toISOString().split('T')[0];
+
+        if (transactions.length > 0) {
+            // Find earliest transaction date
+            const earliest = new Date(Math.min(...transactions.map((t: any) => new Date(t.createdAt).getTime())));
+            // Ensure from date is at least 7 days ago so the chart looks nice even if just started
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setDate(today.getDate() - 6);
+            if (earliest > sevenDaysAgo) {
+                fromStr = sevenDaysAgo.toISOString().split('T')[0];
+            } else {
+                fromStr = earliest.toISOString().split('T')[0];
+            }
+        } else {
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setDate(today.getDate() - 6);
+            fromStr = sevenDaysAgo.toISOString().split('T')[0];
+        }
+
+        forkJoin({
+          earnings: this.api.publisher.getEarnings(),
+          websites: this.api.publisher.getWebsites(),
+          analytics: this.api.publisher.getGlobalDailyAnalytics(fromStr, toStr)
+        }).subscribe({
+          next: (res) => {
+            this.earnings = res.earnings;
+            this.websites = res.websites;
+            
+            // Update chart data
+            if (res.analytics && res.analytics.length > 0) {
+              this.lineChartData = {
+                labels: res.analytics.map((a: any) => {
+                   const d = new Date(a.date);
+                   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                }),
+                datasets: [
+                  {
+                    data: res.analytics.map((a: any) => a.revenue),
+                    label: 'Earnings ($)',
+                    fill: true,
+                    tension: 0.4,
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)'
+                  }
+                ]
+              };
+            }
+
+        // Process Pie Chart Data
+        const earningsByPlacement: { [key: string]: number } = {};
+        this.transactions.forEach(t => {
+          const key = `Placement #${t.placementId}`;
+          earningsByPlacement[key] = (earningsByPlacement[key] || 0) + (t.publisherShare || 0);
+        });
+        
+        if (Object.keys(earningsByPlacement).length > 0) {
+          this.pieChartData = {
+            labels: Object.keys(earningsByPlacement),
+            datasets: [{
+              data: Object.values(earningsByPlacement),
+              backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#3b82f6', '#8b5cf6', '#ec4899', '#14b8a6'],
+              borderWidth: 0
+            }]
           };
         }
         
@@ -120,7 +169,12 @@ export class DashboardComponent implements OnInit {
       error: () => {
         this.loading = false;
       }
-    });
+    }); // closes inner forkJoin subscribe
+      },
+      error: () => {
+        this.loading = false;
+      }
+    }); // closes outer transactions subscribe
   }
 
   loadUpgradeRequests() {

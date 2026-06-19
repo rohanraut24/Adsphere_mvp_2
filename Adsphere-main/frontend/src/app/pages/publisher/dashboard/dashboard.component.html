@@ -34,14 +34,30 @@
     </div>
 
     <!-- Earnings Chart -->
-    <div class="card p-6">
-      <h2 class="section-title mb-4">Earnings Overview</h2>
-      <div class="h-72 w-full">
-        <canvas baseChart
-          [data]="lineChartData"
-          [options]="lineChartOptions"
-          [type]="'line'">
-        </canvas>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="card p-6 lg:col-span-2">
+        <h2 class="section-title mb-4">Earnings Overview</h2>
+        <div class="h-72 w-full">
+          <canvas baseChart
+            [data]="lineChartData"
+            [options]="lineChartOptions"
+            [type]="'line'">
+          </canvas>
+        </div>
+      </div>
+      
+      <div class="card p-6">
+        <h2 class="section-title mb-4">Revenue by Placement</h2>
+        <div class="h-72 w-full flex items-center justify-center">
+          <canvas *ngIf="pieChartData.labels?.length" baseChart
+            [data]="pieChartData"
+            [options]="pieChartOptions"
+            [type]="'pie'">
+          </canvas>
+          <div *ngIf="!pieChartData.labels?.length" class="text-sm text-gray-400">
+            No revenue data yet.
+          </div>
+        </div>
       </div>
     </div>
 

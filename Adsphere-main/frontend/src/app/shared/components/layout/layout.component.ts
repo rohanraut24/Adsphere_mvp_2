@@ -8,9 +8,9 @@ import { SidebarComponent } from '../sidebar/sidebar.component';
   standalone: true,
   imports: [CommonModule, RouterOutlet, SidebarComponent],
   template: `
-    <div class="flex min-h-screen bg-gray-50">
-      <app-sidebar></app-sidebar>
-      <div class="flex-1 flex flex-col min-w-0">
+    <div class="flex h-screen bg-gray-50 overflow-hidden">
+      <app-sidebar class="h-full flex shrink-0"></app-sidebar>
+      <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         <header class="h-14 bg-white border-b border-gray-100 flex items-center px-8 shrink-0">
           <h1 class="text-sm font-semibold text-gray-800">{{ getTitle() }}</h1>
           <div class="ml-auto flex items-center gap-3">

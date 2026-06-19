@@ -34,8 +34,8 @@ export class WebsiteFormComponent implements OnInit {
     this.id = this.route.snapshot.paramMap.get('id');
     this.isEdit = !!this.id;
 
-    // URL regex pattern to match standard URL format
-    const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
+    // URL regex pattern updated to allow localhost and ports for local development
+    const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)(:\d+)?([\/\w \.-]*)*\/?$/;
 
     this.form = this.fb.group({
       name: ['', [Validators.required]],

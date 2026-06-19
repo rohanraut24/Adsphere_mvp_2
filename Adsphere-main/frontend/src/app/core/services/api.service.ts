@@ -40,6 +40,7 @@ export class ApiService {
     createWebsite: (data: any): Observable<any> => this.http.post(`${this.prefix}/publisher/websites`, data),
     updateWebsite: (id: any, data: any): Observable<any> => this.http.put(`${this.prefix}/publisher/websites/${id}`, data),
     deleteWebsite: (id: any): Observable<any> => this.http.delete(`${this.prefix}/publisher/websites/${id}`),
+    getActiveCampaigns: (): Observable<any> => this.http.get(`${this.prefix}/publisher/campaigns/active`),
     getPlacements: (websiteId: any): Observable<any> => this.http.get(`${this.prefix}/publisher/websites/${websiteId}/placements`),
     createPlacement: (data: any): Observable<any> => this.http.post(`${this.prefix}/publisher/placements`, data),
     togglePlacement: (id: any): Observable<any> => this.http.put(`${this.prefix}/publisher/placements/${id}/toggle`, {}),
@@ -53,6 +54,7 @@ export class ApiService {
   };
 
   network = {
+    getStats: (): Observable<any> => this.http.get(`${this.prefix}/network/stats`),
     getPendingWebsites: (): Observable<any> => this.http.get(`${this.prefix}/network/websites/pending`),
     approveWebsite: (id: any): Observable<any> => this.http.put(`${this.prefix}/network/websites/${id}/approve`, {}),
     rejectWebsite: (id: any): Observable<any> => this.http.put(`${this.prefix}/network/websites/${id}/reject`, {}),
