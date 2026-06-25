@@ -24,16 +24,24 @@ public class AnalyticsService {
         var rows = analyticsRepository.findByCampaignIdAndDateRange(campaignId, from, to);
         long impressions = rows.stream().mapToLong(a -> a.getImpressions()).sum();
         long clicks      = rows.stream().mapToLong(a -> a.getClicks()).sum();
-        BigDecimal revenue = revenueTransactionRepository
-                .sumAdvertiserSpend(getCampaignAdvertiserId(campaignId));
+        BigDecimal revenue = revenueTransactionRepository.sumCampaignSpend(campaignId);
         return new AnalyticsSummary(impressions, clicks, calcCtr(impressions, clicks),
                 revenue != null ? revenue : BigDecimal.ZERO);
     }
 
     public List<DailyAnalytics> getCampaignDaily(Long campaignId, LocalDate from, LocalDate to) {
+        var transactions = revenueTransactionRepository.findByCampaignAndDateRange(
+                campaignId, from.atStartOfDay(), to.plusDays(1).atStartOfDay());
+        
+        java.util.Map<LocalDate, BigDecimal> dailySpend = new java.util.HashMap<>();
+        for (var t : transactions) {
+            LocalDate d = t.getCreatedAt().toLocalDate();
+            dailySpend.put(d, dailySpend.getOrDefault(d, BigDecimal.ZERO).add(t.getTotalAmount()));
+        }
+
         return analyticsRepository.findByCampaignIdAndDateRange(campaignId, from, to)
                 .stream()
-                .map(a -> new DailyAnalytics(a.getDate(), a.getImpressions(), a.getClicks(), BigDecimal.ZERO))
+                .map(a -> new DailyAnalytics(a.getDate(), a.getImpressions(), a.getClicks(), dailySpend.getOrDefault(a.getDate(), BigDecimal.ZERO)))
                 .toList();
     }
 
@@ -41,16 +49,24 @@ public class AnalyticsService {
         var rows = analyticsRepository.findByWebsiteIdAndDateRange(websiteId, from, to);
         long impressions = rows.stream().mapToLong(a -> a.getImpressions()).sum();
         long clicks      = rows.stream().mapToLong(a -> a.getClicks()).sum();
-        BigDecimal revenue = revenueTransactionRepository
-                .sumPublisherEarnings(getWebsitePublisherId(websiteId));
+        BigDecimal revenue = revenueTransactionRepository.sumWebsiteEarnings(websiteId);
         return new AnalyticsSummary(impressions, clicks, calcCtr(impressions, clicks),
                 revenue != null ? revenue : BigDecimal.ZERO);
     }
 
     public List<DailyAnalytics> getWebsiteDaily(Long websiteId, LocalDate from, LocalDate to) {
+        var transactions = revenueTransactionRepository.findByWebsiteAndDateRange(
+                websiteId, from.atStartOfDay(), to.plusDays(1).atStartOfDay());
+        
+        java.util.Map<LocalDate, BigDecimal> dailyEarnings = new java.util.HashMap<>();
+        for (var t : transactions) {
+            LocalDate d = t.getCreatedAt().toLocalDate();
+            dailyEarnings.put(d, dailyEarnings.getOrDefault(d, BigDecimal.ZERO).add(t.getPublisherShare()));
+        }
+
         return analyticsRepository.findByWebsiteIdAndDateRange(websiteId, from, to)
                 .stream()
-                .map(a -> new DailyAnalytics(a.getDate(), a.getImpressions(), a.getClicks(), BigDecimal.ZERO))
+                .map(a -> new DailyAnalytics(a.getDate(), a.getImpressions(), a.getClicks(), dailyEarnings.getOrDefault(a.getDate(), BigDecimal.ZERO)))
                 .toList();
     }
 

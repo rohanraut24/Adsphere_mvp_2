@@ -25,8 +25,8 @@ export class WebsiteDetailComponent implements OnInit {
   daily: any[] = [];
   activeCampaigns: any[] = [];
 
-  today = new Date().toISOString().slice(0, 10);
-  monthAgo = new Date(Date.now() - 30 * 864e5).toISOString().slice(0, 10);
+  today = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(new Date().getDate()).padStart(2, '0')}`;
+  monthAgo = `${new Date(Date.now() - 30 * 864e5).getFullYear()}-${String(new Date(Date.now() - 30 * 864e5).getMonth() + 1).padStart(2, '0')}-${String(new Date(Date.now() - 30 * 864e5).getDate()).padStart(2, '0')}`;
 
   placement = { campaignId: '', adCreativeId: '' };
   showForm = false;
@@ -88,12 +88,14 @@ export class WebsiteDetailComponent implements OnInit {
     this.formError = '';
 
     const payload: any = {
-      websiteId: Number(this.website.id),
-      campaignId: Number(this.placement.campaignId)
+      websiteId: Number(this.website.id)
     };
 
-    if (this.placement.adCreativeId) {
-      payload.adCreativeId = Number(this.placement.adCreativeId);
+    if (this.placement.campaignId && this.placement.campaignId !== 'DYNAMIC') {
+      payload.campaignId = Number(this.placement.campaignId);
+      if (this.placement.adCreativeId) {
+        payload.adCreativeId = Number(this.placement.adCreativeId);
+      }
     }
 
     this.api.publisher.createPlacement(payload).subscribe({

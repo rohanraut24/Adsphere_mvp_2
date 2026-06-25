@@ -7,7 +7,6 @@ import lombok.Data;
 public class PlacementRequest {
     @NotNull
     private Long websiteId;
-    @NotNull
     private Long campaignId;
     private Long adCreativeId;
 }

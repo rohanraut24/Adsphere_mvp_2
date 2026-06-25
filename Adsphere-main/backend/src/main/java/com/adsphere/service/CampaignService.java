@@ -15,11 +15,20 @@ public class CampaignService {
     private final CampaignRepository campaignRepository;
     private final AdCreativeRepository adCreativeRepository;
     private final UserRepository userRepository;
+    private final AdPlacementRepository adPlacementRepository;
 
     // --- Campaign CRUD ---
 
     public CampaignResponse create(String advertiserEmail, CampaignRequest request) {
         User advertiser = getUser(advertiserEmail);
+        
+        java.math.BigDecimal budget = request.getBudget();
+        if (advertiser.getBalance().compareTo(budget) < 0) {
+            throw new IllegalStateException("Insufficient wallet balance to allocate campaign budget");
+        }
+        advertiser.setBalance(advertiser.getBalance().subtract(budget));
+        userRepository.save(advertiser);
+
         Campaign campaign = new Campaign();
         campaign.setAdvertiser(advertiser);
         mapRequest(campaign, request);
@@ -40,6 +49,22 @@ public class CampaignService {
         Campaign campaign = findOwned(id, advertiserEmail);
         if (campaign.getStatus() != CampaignStatus.DRAFT)
             throw new IllegalStateException("Only DRAFT campaigns can be edited");
+        
+        User advertiser = campaign.getAdvertiser();
+        java.math.BigDecimal oldBudget = campaign.getBudget();
+        java.math.BigDecimal newBudget = request.getBudget();
+        java.math.BigDecimal diff = newBudget.subtract(oldBudget);
+        
+        if (diff.compareTo(java.math.BigDecimal.ZERO) > 0) {
+            if (advertiser.getBalance().compareTo(diff) < 0) {
+                throw new IllegalStateException("Insufficient wallet balance to increase budget");
+            }
+            advertiser.setBalance(advertiser.getBalance().subtract(diff));
+        } else if (diff.compareTo(java.math.BigDecimal.ZERO) < 0) {
+            advertiser.setBalance(advertiser.getBalance().add(diff.abs()));
+        }
+        userRepository.save(advertiser);
+
         mapRequest(campaign, request);
         return toResponse(campaignRepository.save(campaign));
     }
@@ -48,6 +73,12 @@ public class CampaignService {
         Campaign campaign = findOwned(id, advertiserEmail);
         if (campaign.getStatus() != CampaignStatus.DRAFT)
             throw new IllegalStateException("Only DRAFT campaigns can be deleted");
+        
+        // Refund campaign budget to advertiser's wallet
+        User advertiser = campaign.getAdvertiser();
+        advertiser.setBalance(advertiser.getBalance().add(campaign.getBudget()));
+        userRepository.save(advertiser);
+
         campaignRepository.delete(campaign);
     }
 
@@ -124,6 +155,14 @@ public class CampaignService {
         findOwned(campaignId, advertiserEmail);
         AdCreative creative = adCreativeRepository.findById(creativeId)
                 .orElseThrow(() -> new IllegalArgumentException("Creative not found"));
+        
+        // Nullify references in placements to prevent foreign key constraint violations
+        List<AdPlacement> placements = adPlacementRepository.findByAdCreative(creative);
+        for (AdPlacement placement : placements) {
+            placement.setAdCreative(null);
+            adPlacementRepository.save(placement);
+        }
+        
         adCreativeRepository.delete(creative);
     }
 

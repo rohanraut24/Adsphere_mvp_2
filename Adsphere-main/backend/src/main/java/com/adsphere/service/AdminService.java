@@ -25,6 +25,7 @@ public class AdminService {
     private final AdPlacementRepository adPlacementRepository;
     private final AnalyticsRepository analyticsRepository;
     private final RevenueTransactionRepository revenueTransactionRepository;
+    private final FraudDetectionService fraudDetectionService;
 
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll().stream().map(this::toUserResponse).toList();
@@ -91,6 +92,8 @@ public class AdminService {
                 ));
             }
         }
+        
+        anomalies.addAll(fraudDetectionService.getRealtimeAnomalies());
 
         return new AdminStats(totalUsers, totalWebsites, totalCampaigns, totalPlacements,
                 totalClicks, totalImpressions, platformRevenue, networkRevenue, anomalies);

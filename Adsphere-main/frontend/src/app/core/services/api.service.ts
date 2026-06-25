@@ -72,4 +72,10 @@ export class ApiService {
     getPendingUpgrades: (): Observable<any> => this.http.get(`${this.prefix}/admin/upgrade-requests/pending`),
     reviewUpgrade: (id: any, data: any): Observable<any> => this.http.put(`${this.prefix}/admin/upgrade-requests/${id}/review`, data),
   };
+
+  wallet = {
+    getBalance: (): Observable<any> => this.http.get(`${this.prefix}/wallet/balance`),
+    deposit: (amount: number): Observable<any> => this.http.post(`${this.prefix}/wallet/deposit`, { amount }),
+    withdraw: (amount: number): Observable<any> => this.http.post(`${this.prefix}/wallet/withdraw`, { amount }),
+  };
 }

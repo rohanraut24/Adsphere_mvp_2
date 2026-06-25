@@ -11,4 +11,5 @@ public interface WebsiteRepository extends JpaRepository<Website, Long> {
     List<Website> findByStatus(WebsiteStatus status);
     List<Website> findByPublisherAndStatus(User publisher, WebsiteStatus status);
     boolean existsByUrl(String url);
+    java.util.Optional<Website> findByUrl(String url);
 }

@@ -1,11 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-const AdPlacement = ({ placementId, type, fallbackImageUrl }) => {
+const AdPlacement = ({ placementId, prefetchedAd, type, fallbackImageUrl }) => {
   const adRef = useRef(null);
   const [impressionRecorded, setImpressionRecorded] = useState(false);
-  const [adData, setAdData] = useState(null);
+  const [adData, setAdData] = useState(prefetchedAd || null);
 
   useEffect(() => {
+    if (prefetchedAd) {
+      setAdData(prefetchedAd);
+      setImpressionRecorded(true);
+      return;
+    }
+
     if (!placementId) return;
 
     // Fetch the actual ad from the backend
@@ -20,7 +26,7 @@ const AdPlacement = ({ placementId, type, fallbackImageUrl }) => {
         setImpressionRecorded(true); 
       })
       .catch(err => console.error("Failed to fetch ad:", err));
-  }, [placementId]);
+  }, [placementId, prefetchedAd]);
 
   useEffect(() => {
     // If we didn't fetch an ad successfully, we still want to trigger 
@@ -52,8 +58,12 @@ const AdPlacement = ({ placementId, type, fallbackImageUrl }) => {
   const handleClick = () => {
     if (!placementId) return;
     
+    const clickUrl = adData && adData.campaignId
+      ? `/api/track/click/${placementId}?campaignId=${adData.campaignId}`
+      : `/api/track/click/${placementId}`;
+      
     // Record click in the backend
-    fetch(`/api/track/click/${placementId}`, { method: 'POST' })
+    fetch(clickUrl, { method: 'POST' })
       .catch(err => console.error("Failed to record click:", err));
       
     // Open the advertiser's destination link in a new tab if it exists

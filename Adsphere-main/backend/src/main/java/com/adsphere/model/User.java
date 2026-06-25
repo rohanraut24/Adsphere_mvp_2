@@ -35,6 +35,9 @@ public class User {
 
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @Column(nullable = false, precision = 10, scale = 4)
+    private java.math.BigDecimal balance = new java.math.BigDecimal("1000.0000");
+
     @JsonIgnore
     @OneToMany(mappedBy = "publisher", cascade = CascadeType.ALL)
     private List<Website> websites;

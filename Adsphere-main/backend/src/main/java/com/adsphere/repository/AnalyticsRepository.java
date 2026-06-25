@@ -11,9 +11,10 @@ import java.util.Optional;
 
 public interface AnalyticsRepository extends JpaRepository<Analytics, Long> {
     List<Analytics> findByPlacement(AdPlacement placement);
-    Optional<Analytics> findByPlacementAndDate(AdPlacement placement, LocalDate date);
+    List<Analytics> findByPlacementAndDate(AdPlacement placement, LocalDate date);
+    List<Analytics> findByPlacementAndCampaignAndDate(AdPlacement placement, com.adsphere.model.Campaign campaign, LocalDate date);
 
-    @Query("SELECT a FROM Analytics a WHERE a.placement.campaign.id = :campaignId AND a.date BETWEEN :from AND :to")
+    @Query("SELECT a FROM Analytics a WHERE a.campaign.id = :campaignId AND a.date BETWEEN :from AND :to")
     List<Analytics> findByCampaignIdAndDateRange(@Param("campaignId") Long campaignId,
                                                   @Param("from") LocalDate from,
                                                   @Param("to") LocalDate to);

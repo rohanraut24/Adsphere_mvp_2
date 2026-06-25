@@ -1,7 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { ApiService } from '../../../core/services/api.service';
 import { LucideDynamicIcon } from '@lucide/angular';
 
 interface NavItem {
@@ -45,6 +46,28 @@ interface NavItem {
         </a>
       </nav>
 
+      <!-- Wallet Info (Only for ADVERTISER and PUBLISHER) -->
+      <div *ngIf="user && (user.role === 'ADVERTISER' || user.role === 'PUBLISHER')" class="px-4 py-3.5 mx-3 mb-3 rounded-xl bg-gray-900 border border-gray-800 flex flex-col gap-2">
+        <div class="flex items-center justify-between text-xs text-gray-500 font-semibold uppercase tracking-wider">
+          <span class="flex items-center gap-1.5"><svg lucideIcon="wallet" [size]="13"></svg> Wallet</span>
+          <span class="text-white font-bold">\${{ walletBalance !== null ? (walletBalance | number:'1.2-2') : '0.00' }}</span>
+        </div>
+        <button
+          *ngIf="user.role === 'ADVERTISER'"
+          (click)="rechargeFunds()"
+          class="w-full text-center text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 active:scale-95 transition-all text-white py-1.5 rounded-lg cursor-pointer flex items-center justify-center gap-1"
+        >
+          <svg lucideIcon="plus" [size]="12"></svg> Recharge
+        </button>
+        <button
+          *ngIf="user.role === 'PUBLISHER'"
+          (click)="withdrawFunds()"
+          class="w-full text-center text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 active:scale-95 transition-all text-white py-1.5 rounded-lg cursor-pointer flex items-center justify-center gap-1"
+        >
+          Withdraw
+        </button>
+      </div>
+
       <!-- User -->
       <div class="px-4 py-4 border-t border-gray-800">
         <div class="flex items-center gap-3 mb-3">
@@ -67,9 +90,64 @@ interface NavItem {
     </aside>
   `
 })
-export class SidebarComponent {
+export class SidebarComponent implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
+  private api = inject(ApiService);
+
+  walletBalance: number | null = null;
+
+  ngOnInit() {
+    this.refreshWallet();
+  }
+
+  refreshWallet() {
+    if (this.user && (this.user.role === 'ADVERTISER' || this.user.role === 'PUBLISHER')) {
+      this.api.wallet.getBalance().subscribe({
+        next: (res: any) => {
+          this.walletBalance = res.balance;
+        }
+      });
+    }
+  }
+
+  rechargeFunds() {
+    const amountStr = prompt("Enter amount to recharge ($):", "100");
+    if (amountStr) {
+      const amount = parseFloat(amountStr);
+      if (!isNaN(amount) && amount > 0) {
+        this.api.wallet.deposit(amount).subscribe({
+          next: (res: any) => {
+            this.walletBalance = res.balance;
+            alert(`Successfully recharged $${amount.toFixed(2)} to your wallet!`);
+            window.location.reload();
+          },
+          error: (err: any) => {
+            alert("Recharge failed: " + (err.error?.message || err.message));
+          }
+        });
+      }
+    }
+  }
+
+  withdrawFunds() {
+    const amountStr = prompt("Enter amount to withdraw ($):", "50");
+    if (amountStr) {
+      const amount = parseFloat(amountStr);
+      if (!isNaN(amount) && amount > 0) {
+        this.api.wallet.withdraw(amount).subscribe({
+          next: (res: any) => {
+            this.walletBalance = res.balance;
+            alert(`Successfully withdrew $${amount.toFixed(2)} from your wallet!`);
+            window.location.reload();
+          },
+          error: (err: any) => {
+            alert("Withdrawal failed: " + (err.error?.message || err.message));
+          }
+        });
+      }
+    }
+  }
 
   private readonly NAV: Record<string, NavItem[]> = {
     ADVERTISER: [

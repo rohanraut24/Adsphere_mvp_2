@@ -34,7 +34,7 @@
   </div>
 
   <!-- Info cards -->
-  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
     <div class="card p-4">
       <p class="text-xs text-gray-500 mb-1">Budget</p>
       <p class="text-lg font-bold text-gray-900">\${{ campaign.budget | number:'1.0-0' }}</p>
@@ -54,7 +54,7 @@
   </div>
 
   <!-- Analytics summary -->
-  <div *ngIf="analytics" class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+  <div *ngIf="analytics" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
     <div class="card p-4 flex items-center gap-3">
       <div class="p-2 rounded-xl bg-indigo-50 text-indigo-600">
         <svg lucideIcon="eye" [size]="16"></svg>

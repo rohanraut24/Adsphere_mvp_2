@@ -28,6 +28,7 @@ export class DashboardComponent implements OnInit {
   spend: number | null = null;
   campaigns: any[] = [];
   transactions: any[] = [];
+  walletBalance: number | null = null;
   loading = true;
 
   upgradeRequests: any[] = [];
@@ -88,19 +89,21 @@ export class DashboardComponent implements OnInit {
     const lastWeek = new Date();
     lastWeek.setDate(today.getDate() - 6);
     
-    const fromStr = lastWeek.toISOString().split('T')[0];
-    const toStr = today.toISOString().split('T')[0];
+    const fromStr = `${lastWeek.getFullYear()}-${String(lastWeek.getMonth() + 1).padStart(2, '0')}-${String(lastWeek.getDate()).padStart(2, '0')}`;
+    const toStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
     forkJoin({
       spend: this.api.advertiser.getSpend(),
       campaigns: this.api.advertiser.getCampaigns(),
       transactions: this.api.advertiser.getTransactions(),
-      analytics: this.api.advertiser.getGlobalDailyAnalytics(fromStr, toStr)
+      analytics: this.api.advertiser.getGlobalDailyAnalytics(fromStr, toStr),
+      wallet: this.api.wallet.getBalance()
     }).subscribe({
       next: (res) => {
         this.spend = res.spend;
         this.campaigns = res.campaigns;
         this.transactions = res.transactions;
+        this.walletBalance = res.wallet.balance;
         
         // Update chart data
         if (res.analytics && res.analytics.length > 0) {
@@ -134,5 +137,23 @@ export class DashboardComponent implements OnInit {
       },
       error: () => {}
     });
+  }
+
+  depositFunds() {
+    const amountStr = prompt("Enter amount to deposit ($):", "100");
+    if (amountStr) {
+      const amount = parseFloat(amountStr);
+      if (!isNaN(amount) && amount > 0) {
+        this.api.wallet.deposit(amount).subscribe({
+          next: (res: any) => {
+            this.walletBalance = res.balance;
+            alert(`Successfully deposited $${amount.toFixed(2)} to your wallet!`);
+          },
+          error: (err: any) => {
+            alert("Deposit failed: " + (err.error?.message || err.message));
+          }
+        });
+      }
+    }
   }
 }

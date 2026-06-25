@@ -19,7 +19,7 @@
     </a>
   </div>
 
-  <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
     <div class="card p-4">
       <p class="text-xs text-gray-500 mb-1">Category</p>
       <p class="font-bold text-gray-900">{{ website.category }}</p>
@@ -35,7 +35,7 @@
   </div>
 
   <!-- Analytics summary -->
-  <div *ngIf="analytics" class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+  <div *ngIf="analytics" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
     <div class="card p-4 flex items-center gap-3">
       <div class="p-2 rounded-xl bg-indigo-50 text-indigo-600">
         <svg lucideIcon="eye" [size]="16"></svg>
@@ -135,7 +135,8 @@
         <div>
           <label class="label text-xs">Campaign *</label>
           <select [(ngModel)]="placement.campaignId" name="campaignId" class="input text-sm" required>
-            <option value="">Select a Campaign</option>
+            <option value="">Select an Option</option>
+            <option value="DYNAMIC">Dynamic Matching (Auto)</option>
             <option *ngFor="let c of activeCampaigns" [value]="c.id">
               {{ c.name }} (by {{ c.advertiserEmail }})
             </option>
@@ -143,7 +144,7 @@
         </div>
         <div>
           <label class="label text-xs">Creative (optional)</label>
-          <select [(ngModel)]="placement.adCreativeId" name="adCreativeId" class="input text-sm" [disabled]="!placement.campaignId">
+          <select [(ngModel)]="placement.adCreativeId" name="adCreativeId" class="input text-sm" [disabled]="!placement.campaignId || placement.campaignId === 'DYNAMIC'">
             <option value="">Any Creative</option>
             <option *ngFor="let cr of getAvailableCreatives()" [value]="cr.id">
               {{ cr.title }}

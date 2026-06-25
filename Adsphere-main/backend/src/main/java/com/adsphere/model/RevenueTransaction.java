@@ -19,6 +19,10 @@ public class RevenueTransaction {
     private AdPlacement placement;
 
     @ManyToOne
+    @JoinColumn(name = "campaign_id")
+    private Campaign campaign;
+
+    @ManyToOne
     @JoinColumn(name = "publisher_id", nullable = false)
     private User publisher;
 

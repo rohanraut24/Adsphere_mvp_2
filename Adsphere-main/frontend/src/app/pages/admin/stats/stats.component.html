@@ -1,6 +1,6 @@
 <div *ngIf="!stats" class="animate-pulse space-y-4">
   <div class="h-8 bg-gray-200 rounded w-48"></div>
-  <div class="grid grid-cols-4 gap-4">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
     <div *ngFor="let i of [1, 2, 3, 4, 5, 6, 7, 8]" class="h-24 bg-gray-200 rounded-2xl"></div>
   </div>
 </div>
@@ -21,14 +21,14 @@
     </div>
   </div>
 
-  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
     <app-stat-card label="Total Users" [value]="stats.totalUsers" icon="users" color="indigo"></app-stat-card>
     <app-stat-card label="Total Websites" [value]="stats.totalWebsites" icon="globe" color="cyan"></app-stat-card>
     <app-stat-card label="Total Campaigns" [value]="stats.totalCampaigns" icon="megaphone" color="amber"></app-stat-card>
     <app-stat-card label="Total Placements" [value]="stats.totalPlacements" icon="layout-grid" color="violet"></app-stat-card>
   </div>
 
-  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
     <app-stat-card label="Total Impressions" [value]="stats.totalImpressions | number" icon="eye" color="indigo"></app-stat-card>
     <app-stat-card label="Total Clicks" [value]="stats.totalClicks | number" icon="mouse-pointer-click" color="emerald"></app-stat-card>
     <app-stat-card label="Platform Revenue" [value]="'$' + (stats.totalPlatformRevenue | number:'1.4-4')" icon="dollar-sign" color="rose"></app-stat-card>

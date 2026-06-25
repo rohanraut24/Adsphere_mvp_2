@@ -1,8 +1,8 @@
 <div class="space-y-6">
   <div *ngIf="loading" class="animate-pulse space-y-4">
     <div class="h-8 bg-gray-200 rounded w-48"></div>
-    <div class="grid grid-cols-4 gap-4">
-      <div *ngFor="let i of [1, 2, 3, 4]" class="h-24 bg-gray-200 rounded-2xl"></div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+      <div *ngFor="let i of [1, 2, 3, 4, 5]" class="h-24 bg-gray-200 rounded-2xl"></div>
     </div>
     <div class="h-64 bg-gray-200 rounded-2xl"></div>
   </div>
@@ -26,11 +26,25 @@
       </div>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
       <app-stat-card label="Total Earnings" [value]="earnings !== null ? '$' + (earnings | number:'1.4-4') : '—'" icon="dollar-sign" color="emerald"></app-stat-card>
       <app-stat-card label="Total Websites" [value]="websites.length" icon="globe" color="indigo"></app-stat-card>
       <app-stat-card label="Approved" [value]="approved" icon="trending-up" color="cyan"></app-stat-card>
       <app-stat-card label="Pending Review" [value]="pending" icon="layout-grid" color="amber"></app-stat-card>
+      <div class="card p-4 sm:p-5 flex items-start gap-3 sm:gap-4 hover:shadow-md transition-shadow">
+        <div class="p-2 sm:p-2.5 rounded-xl bg-cyan-50 text-cyan-600 shrink-0">
+          <svg lucideIcon="wallet" [size]="20"></svg>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-[10px] sm:text-xs font-medium text-gray-500 uppercase tracking-wide mb-1 truncate">Wallet Balance</p>
+          <p class="text-xl sm:text-2xl font-bold text-gray-900 leading-none truncate" [title]="walletBalance !== null ? '$' + (walletBalance | number:'1.4-4') : '—'">
+            {{ walletBalance !== null ? '$' + (walletBalance | number:'1.4-4') : '—' }}
+          </p>
+          <button (click)="withdrawFunds()" class="text-xs text-emerald-600 font-semibold mt-2 hover:underline flex items-center gap-1 cursor-pointer">
+            Withdraw Funds
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Earnings Chart -->

@@ -10,4 +10,5 @@ public interface AdPlacementRepository extends JpaRepository<AdPlacement, Long> 
     List<AdPlacement> findByWebsite(Website website);
     List<AdPlacement> findByCampaign(Campaign campaign);
     List<AdPlacement> findByWebsiteAndActive(Website website, boolean active);
+    List<AdPlacement> findByAdCreative(com.adsphere.model.AdCreative adCreative);
 }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import AdPlacement from '../components/AdPlacement';
 import ArticleCard from '../components/ArticleCard';
@@ -39,10 +39,25 @@ const MOCK_ARTICLES = [
 ];
 
 const Home = () => {
-  // Use generic dummy placement IDs (1, 2, 3) 
-  // Change these to valid placement IDs from the AdSphere database for real tracking
-  const BANNER_PLACEMENT_ID = 1;
-  const SIDEBAR_PLACEMENT_ID = 2;
+  const [ads, setAds] = useState([]);
+
+  useEffect(() => {
+    // Fetch all ads for this website in a single API call using domain name
+    const domain = window.location.origin;
+    fetch(`/api/track/serve?domain=${encodeURIComponent(domain)}`)
+      .then(res => {
+        if (res.ok) return res.json();
+        throw new Error("Failed to fetch ads");
+      })
+      .then(data => {
+        setAds(data);
+      })
+      .catch(err => console.error("Error fetching ads:", err));
+  }, []);
+
+  const bannerAd = ads.length > 0 ? ads[0] : null;
+  const sidebarAd = ads.length > 1 ? ads[1] : null;
+  const bottomAd = ads.length > 2 ? ads[2] : null;
 
   return (
     <>
@@ -55,7 +70,8 @@ const Home = () => {
             Advertisement
           </p>
           <AdPlacement 
-            placementId={BANNER_PLACEMENT_ID} 
+            placementId={bannerAd ? bannerAd.placementId : null} 
+            prefetchedAd={bannerAd}
             type="banner" 
             fallbackImageUrl="https://images.unsplash.com/photo-1611162617474-5b21e879e113?auto=format&fit=crop&w=1200&h=90&q=80" 
           />
@@ -87,7 +103,8 @@ const Home = () => {
               </h3>
               
               <AdPlacement 
-                placementId={SIDEBAR_PLACEMENT_ID} 
+                placementId={sidebarAd ? sidebarAd.placementId : null} 
+                prefetchedAd={sidebarAd}
                 type="sidebar" 
                 fallbackImageUrl="https://images.unsplash.com/photo-1542744094-24638ea095b5?auto=format&fit=crop&w=300&h=600&q=80" 
               />
@@ -98,6 +115,19 @@ const Home = () => {
             </div>
           </aside>
         </div>
+
+        {/* Bottom Banner Ad Space */}
+        <section style={{ margin: '48px 0' }} className="animate-fade-in">
+          <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+            Advertisement
+          </p>
+          <AdPlacement 
+            placementId={bottomAd ? bottomAd.placementId : null} 
+            prefetchedAd={bottomAd}
+            type="banner" 
+            fallbackImageUrl="https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&w=1200&h=90&q=80" 
+          />
+        </section>
       </main>
       
       <footer className="glass" style={{ padding: '48px 0', marginTop: '96px', borderTop: '1px solid var(--border-color)' }}>

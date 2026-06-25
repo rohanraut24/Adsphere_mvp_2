@@ -28,6 +28,7 @@ export class DashboardComponent implements OnInit {
   earnings: number | null = null;
   websites: any[] = [];
   transactions: any[] = [];
+  walletBalance: number | null = null;
   loading = true;
 
   upgradeRequests: any[] = [];
@@ -98,7 +99,7 @@ export class DashboardComponent implements OnInit {
         
         let fromStr = '2024-01-01'; // Default fallback
         const today = new Date();
-        const toStr = today.toISOString().split('T')[0];
+        const toStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
         if (transactions.length > 0) {
             // Find earliest transaction date
@@ -107,24 +108,26 @@ export class DashboardComponent implements OnInit {
             const sevenDaysAgo = new Date();
             sevenDaysAgo.setDate(today.getDate() - 6);
             if (earliest > sevenDaysAgo) {
-                fromStr = sevenDaysAgo.toISOString().split('T')[0];
+                fromStr = `${earliest.getFullYear()}-${String(earliest.getMonth() + 1).padStart(2, '0')}-${String(earliest.getDate()).padStart(2, '0')}`;
             } else {
-                fromStr = earliest.toISOString().split('T')[0];
+                fromStr = `${sevenDaysAgo.getFullYear()}-${String(sevenDaysAgo.getMonth() + 1).padStart(2, '0')}-${String(sevenDaysAgo.getDate()).padStart(2, '0')}`;
             }
         } else {
             const sevenDaysAgo = new Date();
             sevenDaysAgo.setDate(today.getDate() - 6);
-            fromStr = sevenDaysAgo.toISOString().split('T')[0];
+            fromStr = `${sevenDaysAgo.getFullYear()}-${String(sevenDaysAgo.getMonth() + 1).padStart(2, '0')}-${String(sevenDaysAgo.getDate()).padStart(2, '0')}`;
         }
 
         forkJoin({
           earnings: this.api.publisher.getEarnings(),
           websites: this.api.publisher.getWebsites(),
-          analytics: this.api.publisher.getGlobalDailyAnalytics(fromStr, toStr)
+          analytics: this.api.publisher.getGlobalDailyAnalytics(fromStr, toStr),
+          wallet: this.api.wallet.getBalance()
         }).subscribe({
           next: (res) => {
             this.earnings = res.earnings;
             this.websites = res.websites;
+            this.walletBalance = res.wallet.balance;
             
             // Update chart data
             if (res.analytics && res.analytics.length > 0) {
@@ -184,5 +187,23 @@ export class DashboardComponent implements OnInit {
       },
       error: () => {}
     });
+  }
+
+  withdrawFunds() {
+    const amountStr = prompt("Enter amount to withdraw ($):", "50");
+    if (amountStr) {
+      const amount = parseFloat(amountStr);
+      if (!isNaN(amount) && amount > 0) {
+        this.api.wallet.withdraw(amount).subscribe({
+          next: (res: any) => {
+            this.walletBalance = res.balance;
+            alert(`Successfully withdrew $${amount.toFixed(2)} from your wallet!`);
+          },
+          error: (err: any) => {
+            alert("Withdrawal failed: " + (err.error?.message || err.message));
+          }
+        });
+      }
+    }
   }
 }

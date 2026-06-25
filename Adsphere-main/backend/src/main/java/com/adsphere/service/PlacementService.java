@@ -28,11 +28,14 @@ public class PlacementService {
         if (website.getStatus() != WebsiteStatus.APPROVED)
             throw new IllegalStateException("Website must be APPROVED before adding placements");
 
-        Campaign campaign = campaignRepository.findById(request.getCampaignId())
-                .orElseThrow(() -> new IllegalArgumentException("Campaign not found"));
+        Campaign campaign = null;
+        if (request.getCampaignId() != null) {
+            campaign = campaignRepository.findById(request.getCampaignId())
+                    .orElseThrow(() -> new IllegalArgumentException("Campaign not found"));
 
-        if (campaign.getStatus() != CampaignStatus.ACTIVE)
-            throw new IllegalStateException("Campaign must be ACTIVE to place ads");
+            if (campaign.getStatus() != CampaignStatus.ACTIVE)
+                throw new IllegalStateException("Campaign must be ACTIVE to place ads");
+        }
 
         AdCreative creative = null;
         if (request.getAdCreativeId() != null) {
@@ -84,8 +87,8 @@ public class PlacementService {
         r.setId(p.getId());
         r.setWebsiteId(p.getWebsite().getId());
         r.setWebsiteUrl(p.getWebsite().getUrl());
-        r.setCampaignId(p.getCampaign().getId());
-        r.setCampaignName(p.getCampaign().getName());
+        r.setCampaignId(p.getCampaign() != null ? p.getCampaign().getId() : null);
+        r.setCampaignName(p.getCampaign() != null ? p.getCampaign().getName() : "Dynamic Matching");
         r.setAdCreativeId(p.getAdCreative() != null ? p.getAdCreative().getId() : null);
         r.setActive(p.isActive());
         r.setCreatedAt(p.getCreatedAt());

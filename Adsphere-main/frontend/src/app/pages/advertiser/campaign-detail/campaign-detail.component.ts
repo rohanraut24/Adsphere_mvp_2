@@ -25,8 +25,8 @@ export class CampaignDetailComponent implements OnInit {
   analytics: any = null;
   daily: any[] = [];
 
-  today = new Date().toISOString().slice(0, 10);
-  monthAgo = new Date(Date.now() - 30 * 864e5).toISOString().slice(0, 10);
+  today = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(new Date().getDate()).padStart(2, '0')}`;
+  monthAgo = `${new Date(Date.now() - 30 * 864e5).getFullYear()}-${String(new Date(Date.now() - 30 * 864e5).getMonth() + 1).padStart(2, '0')}-${String(new Date(Date.now() - 30 * 864e5).getDate()).padStart(2, '0')}`;
 
   EMPTY_CREATIVE = { title: '', description: '', imageUrl: '', destinationUrl: '' };
   newCreative = { ...this.EMPTY_CREATIVE };

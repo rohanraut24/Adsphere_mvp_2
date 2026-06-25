@@ -17,6 +17,10 @@ public class Analytics {
     @JoinColumn(name = "placement_id", nullable = false)
     private AdPlacement placement;
 
+    @ManyToOne
+    @JoinColumn(name = "campaign_id")
+    private Campaign campaign;
+
     @Column(nullable = false)
     private LocalDate date;
 

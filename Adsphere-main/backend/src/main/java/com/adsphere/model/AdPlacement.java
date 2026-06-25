@@ -18,7 +18,7 @@ public class AdPlacement {
     private Website website;
 
     @ManyToOne
-    @JoinColumn(name = "campaign_id", nullable = false)
+    @JoinColumn(name = "campaign_id")
     private Campaign campaign;
 
     @ManyToOne
